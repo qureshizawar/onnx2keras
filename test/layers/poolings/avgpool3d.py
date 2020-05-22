@@ -9,7 +9,7 @@ import onnx
 class LayerTest(nn.Module):
     def __init__(self,  kernel_size=3, padding=1, stride=1):
         super(LayerTest, self).__init__()
-        self.pool = nn.AvgPool2d(kernel_size=kernel_size, padding=padding, stride=stride)
+        self.pool = nn.AvgPool3d(kernel_size=kernel_size, padding=padding, stride=stride)
 
     def forward(self, x):
         x = self.pool(x)
@@ -29,7 +29,7 @@ if __name__ == '__main__':
                     model = LayerTest(kernel_size=kernel_size, padding=padding, stride=stride)
                     model.eval()
 
-                    input_np = np.random.uniform(0, 1, (1, 3, 224, 224))
+                    input_np = np.random.uniform(0, 1, (1, 3, 20, 224, 224))
                     input_var = Variable(torch.FloatTensor(input_np))
 
                     torch.onnx.export(model, input_var, "_tmpnet.onnx", verbose=True, input_names=['test_in'],

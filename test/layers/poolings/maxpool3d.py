@@ -9,7 +9,7 @@ import onnx
 class LayerTest(nn.Module):
     def __init__(self,  kernel_size=3, padding=1, stride=1):
         super(LayerTest, self).__init__()
-        self.pool = nn.AvgPool2d(kernel_size=kernel_size, padding=padding, stride=stride)
+        self.pool = nn.MaxPool3d(kernel_size=kernel_size, padding=padding, stride=stride)
 
     def forward(self, x):
         x = self.pool(x)
@@ -18,18 +18,19 @@ class LayerTest(nn.Module):
 
 if __name__ == '__main__':
     max_error = 0
-    for change_ordering in [True, False]:
+    for change_ordering in [False, True]:
         for kernel_size in [1, 3, 5, 7]:
             for padding in [0, 1, 3]:
                 for stride in [1, 2, 3, 4]:
-                    # RuntimeError: invalid argument 2: pad should be smaller than half of kernel size, but got padW = 1, padH = 1, kW = 1,
+                    # RuntimeError: invalid argument 2: pad should be smaller than half of kernel size,
+                    # cbut got padW = 1, padH = 1, kW = 1,
                     if padding > kernel_size / 2:
                         continue
 
                     model = LayerTest(kernel_size=kernel_size, padding=padding, stride=stride)
                     model.eval()
 
-                    input_np = np.random.uniform(0, 1, (1, 3, 224, 224))
+                    input_np = np.random.uniform(0, 1, (1, 3, 20, 224, 224))
                     input_var = Variable(torch.FloatTensor(input_np))
 
                     torch.onnx.export(model, input_var, "_tmpnet.onnx", verbose=True, input_names=['test_in'],
